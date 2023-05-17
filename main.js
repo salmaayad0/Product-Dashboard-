@@ -1,235 +1,162 @@
-"use strict"
+var productNameInput = document.getElementById('productNameInput');
+var productCategoryInput = document.getElementById('productCategoryInput');
+var productDescInput = document.getElementById('productDescInput');
+var productPriceInput = document.getElementById('productPriceInput');
+var productContainer = [];
+var addBtn = document.getElementById('addBtn');
+var updateBtn = document.getElementById('updateBtn');
+var invalidProductName = document.getElementById('invalidProductName');
+var emptyProductName = document.getElementById('emptyProductName');
+var currentIndex = 0;
 
-//crud project
-//consts declearation to get the elements 
-//products inputs declearation
-const productNameInput = document.getElementById("productNameInput");
-const productPriceInput = document.getElementById("productPriceInput");
-const productCategoryInput = document.getElementById("productCategoryInput");
-const productDescInput = document.getElementById("productDescInput");
+if (localStorage.getItem("myProduct") != null) {
 
-//buttons inputs
-const add = document.getElementById("addBtn");
-const update = document.getElementById("updateBtn");
-
-//table 
-const table = document.getElementById("tableBody");
-
-//array declration 
-let productsContainer = [];
-
-//variable to contian the current index used for update phase 
-let currentIndex = 0;
-
-//local storage check product and data validation 
-if (localStorage.getItem("products") != null) {
-    productsContainer = JSON.parse(localStorage.getItem("products"));
-
-    //show products on load from local storage
-    readProduct();
+    productContainer = JSON.parse(localStorage.getItem('myProduct'));
+    display();
+} else {
+    productContainer = [];
 }
 
-//create add function
-//the product object to reseve and hold the inputs from the user
-//asign key value to the dynamic const
 function addProduct() {
-    //product object declration
-    var product =
-    {
+    // object 
+    var products = {
         productName: productNameInput.value,
         productPrice: productPriceInput.value,
-        productCateg: productCategoryInput.value,
-        productDescr: productDescInput.value
+        productDesc: productDescInput.value,
+        productCatge: productCategoryInput.value,
+
     };
-    //push object into array
-    productsContainer.push(product);
 
-    //storage the products in local storage
-    localStorage.setItem("products", JSON.stringify(productsContainer));
+    
+    productContainer.push(products);
 
-    //read the index products 
-    readProduct();
-
-    //clear form inputs to make the form ready for another input
+    // Local Storage
+    localStorage.setItem('myProduct', JSON.stringify(productContainer));
+    display();
     clearForm();
+   
+
+
 }
+
 
 function clearForm() {
-    productNameInput.value = "";
-    productPriceInput.value = "";
-    productCategoryInput.value = "";
-    productDescInput.value = "";
+    productNameInput.value = '',
+        productPriceInput.value = '',
+        productDescInput.value = '',
+        productCategoryInput.value = '';
 }
 
-//read the inputs function
-function readProduct() {
-    //read by litral object
-    let display = ``;
 
-    for (var i = 0; i < productsContainer.length; i++) {
-        display +=
-            `<tr>
-        <td>${i + 1}</td>
-        <td>${productsContainer[i].productName}</td>
-        <td>${productsContainer[i].productPrice}</td>
-        <td>${productsContainer[i].productCateg}</td>
-        <td>${productsContainer[i].productDescr}</td>
-        <td><button class="btn btn-outline-warning" onclick="updateProduct(${i});">Update</button></td>
-        <td><button class="btn btn-outline-danger" onclick="deleteProduct(${i});">delete</button></td>
-        </tr>`
+function display() {
+    cartoona = ``;
+    for (var i = 0; i < productContainer.length; i++) {
+
+        cartoona += `
+        <tr>
+        <td>${i}</td>
+        <td>${productContainer[i].productName}</td>
+        <td>${productContainer[i].productPrice}</td>
+        <td>${productContainer[i].productCatge}</td>
+        <td>${productContainer[i].productDesc}</td>
+        <td> <button class="btn btn-outline-warning " onclick='updateProduct(${i});'>update</button> </td>
+        <td> <button class="btn btn-outline-danger" onclick="deleteProduct(${i});">delete</button> </td> 
+        </tr>
+        `;
+
     }
-
-    //table element is decleared from tableBody id element
-    table.innerHTML = display;
+    document.getElementById('tableBody').innerHTML = cartoona;
 }
 
-//update the inputs function
+
+
+function deleteProduct(index) {
+    productContainer.splice(index, 1);
+    localStorage.setItem('myProduct', JSON.stringify(productContainer));
+    display();
+
+}
+
+
 function updateProduct(index) {
-    //change class display to display update instead of add
-    update.classList.replace("d-none", "d-inline-block");
-    add.classList.add("d-none");
-
-    //display inputs of specified index into inputs
-    productNameInput.value = productsContainer[index].productName;
-    productPriceInput.value = productsContainer[index].productPrice;
-    productCategoryInput.value = productsContainer[index].productCateg;
-    productDescInput.value = productsContainer[index].productDescr;
-
-    //store index value into current index for the updatedData method
+    updateBtn.classList.replace("d-none", "d-inline-block");
+    addBtn.classList.add("d-none");
     currentIndex = index;
+    productNameInput.value = productContainer[index].productName,
+        productPriceInput.value = productContainer[index].productPrice,
+        productDescInput.value = productContainer[index].productDesc,
+        productCategoryInput.value = productContainer[index].productCatge;
+
 }
 
-//add updatedData
-function updatedData() {
-    productsContainer[currentIndex].productName = productNameInput.value;
-    productsContainer[currentIndex].productPrice = productPriceInput.value;
-    productsContainer[currentIndex].productCateg = productCategoryInput.value;
-    productsContainer[currentIndex].productDescr = productDescInput.value;
+function addUpdatedProduct() {
+    updateBtn.classList.replace("d-inline-block", "d-none");// hide update button
+    addBtn.classList.remove("d-none"); // appear add button again
 
-    //local storage store data
-    localStorage.setItem("products", JSON.stringify(productsContainer));
+    productContainer[currentIndex].productName = productNameInput.value,
+        productContainer[currentIndex].productPrice = productPriceInput.value,
+        productContainer[currentIndex].productDesc = productDescInput.value,
+        productContainer[currentIndex].productCatge = productCategoryInput.value;
 
-    readProduct();
 
-    //switch buttons add, update
-    update.classList.replace("d-inline-block", "d-none");
-    add.classList.remove("d-none");
+    localStorage.setItem('myProduct', JSON.stringify(productContainer));
+    display();
 
     clearForm();
+
 }
 
-//delete the input function
-function deleteProduct(index) {
-    productsContainer.splice(index, 1);
-    //delete form local storage so onload the data don't get back by if condition up 
-    localStorage.setItem("products", JSON.stringify(productsContainer));
-    readProduct();
-}
 
-//valedation section 
-//decleration of span content validation
-const invalidName = document.querySelector("#invalidProductName");
-const emptyName = document.querySelector("#emptyProductName");
 
-const invalidPrice = document.querySelector("#invalidProductPrice");
-const emptyPrice = document.querySelector("#emptyProductPrice");
 
-const invalidCateg = document.querySelector("#invalidProductCateg");
-const emptyCateg = document.querySelector("#emptyProductCateg");
+function validateProductName() {
+    var rejex = /^[a-zA-Z]{3,8}$/;
+    if (rejex.test(productNameInput.value) == true) {
+        invalidProductName.classList.replace("d-block", "d-none");
+        emptyProductName.classList.replace("d-block", "d-none");
 
-const invalidDesc = document.querySelector("#invalidProductDesc");
-const emptyDesc = document.querySelector("#emptyProductDesc");
 
-function addValidation() {
-    if (productNameInput.value == "" || productPriceInput.value == "" ||
-        productCategoryInput.value == "" || productDescInput.value == "") {
-        validateProductName();
-        validateProductPrice();
-        validateProductCateg();
-        validateProductDesc();
+        return true;
+    } else if (productNameInput.value == '') {
+
+        emptyProductName.classList.replace("d-none", "d-block");
+        invalidProductName.classList.replace("d-block", "d-none");
+
     }
+
     else {
+        invalidProductName.classList.replace("d-none", "d-block");
+        emptyProductName.classList.replace("d-block", "d-none");
+        return false;
+    }
+
+}
+
+
+
+function validateAddingButton(){
+    if (productNameInput.value == ''){
+        validateProductName();
+    }else{
         addProduct();
     }
 }
 
-function validateProductName() {
-    let rejex = /^[a-zA-Z]{3,8}$/ig;
-    if (rejex.test(productNameInput.value) == true) {
-        invalidName.classList.replace("d-inline-block", "d-none");
-        emptyName.classList.replace("d-inline-block", "d-none");
 
-        return true;
-    }
-    else if (productNameInput.value == '') {
-        invalidName.classList.replace("d-inline-block", "d-none");
-        emptyName.classList.replace("d-none", "d-inline-block");
-    }
-    else 
-    {
-        invalidName.classList.replace("d-none", "d-inline-block");
-        emptyName.classList.replace("d-inline-block", "d-none");
 
-        return false;
-    }
-}
 
-function validateProductPrice() {
-    let rejex = /^[0-9]{1,}$/ig;
-    if (rejex.test(productPriceInput.value) == true) {
-        invalidPrice.classList.replace("d-inline-block", "d-none");
-        emptyPrice.classList.replace("d-inline-block", "d-none");
 
-        return true;
-    }
-    else if (productNameInput.value == '') {
-        invalidPrice.classList.replace("d-inline-block", "d-none");
-        emptyPrice.classList.replace("d-none", "d-inline-block");
-    }
-    else {
-        invalidPrice.classList.replace("d-none", "d-inline-block");
-        emptyPrice.classList.replace("d-inline-block", "d-none");
 
-        return false;
-    }
-}
+   
 
-function validateProductCateg() {
-    let rejex = /^[a-zA-Z]{3,8}$/ig;
-    if (rejex.test(productCategoryInput.value) == true) {
-        invalidCateg.classList.replace("d-inline-block", "d-none");
-        emptyCateg.classList.replace("d-inline-block", "d-none");
 
-        return true;
-    }
-    else if(productCategoryInput.value == '') {
-        invalidCateg.classList.replace("d-inline-block", "d-none");
-        emptyCateg.classList.replace("d-none", "d-inline-block");
-    }
-    else {
-        invalidCateg.classList.replace("d-none", "d-inline-block");
-        emptyCateg.classList.replace("d-inline-block", "d-none");
 
-        return false;
-    }
-}
 
-function validateProductDesc() {
-    let rejex = /^[a-zA-Z]$/ig;
-    if (rejex.test(productDescInput.value) == true) {
-        invalidDesc.classList.replace("d-inline-block", "d-none");
-        emptyDesc.classList.replace("d-inline-block", "d-none");
 
-        return true;
-    }
-    else if (productNameInput.value == '') {
-        invalidDesc.classList.replace("d-inline-block", "d-none");
-        emptyDesc.classList.replace("d-none", "d-inline-block");
-    }
-    else {
-        invalidDesc.classList.replace("d-none", "d-inline-block");
-        emptyDesc.classList.replace("d-inline-block", "d-none");
 
-        return false;
-    }
-}
+
+
+
+
+
+
